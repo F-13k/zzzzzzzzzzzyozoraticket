@@ -36,7 +36,7 @@ class CloseTicketView(View):
         await interaction.response.send_message("Fermeture du ticket dans 3 secondes...", ephemeral=True)
         await interaction.channel.delete()
 
-# Menu déroulant mis à jour avec les nouvelles options
+# Menu déroulant des tickets avec tes ID de catégories intégrés
 class TicketSelect(Select):
     def __init__(self):
         options = [
@@ -54,21 +54,18 @@ class TicketSelect(Select):
         member = interaction.user
         ticket_type = self.values[0]
 
-        # ----------------------------------------------------
-        # CONFIGURATION DES CATEGORIES (ID DES CATEGORIES DISCORD)
-        # ----------------------------------------------------
-        # Remplace ces zéros par les ID de tes catégories Discord correspondantes :
+        # Association des types avec tes ID de catégories
         category_ids = {
             "support": 1529687940312072385,
-            "fondateurs": 1529688368747909313,  # ID catégorie pour les fondateurs
-            "abus": 1529688444102643733,        # ID catégorie pour les signalements d'abus
+            "fondateurs": 1529688368747909313,
+            "abus": 1529688444102643733,
             "partenariat": 1529688545172914176,
             "plainte": 1529688646192595114,
             "autre": 1529688715339894844
         }
 
         target_category_id = category_ids.get(ticket_type)
-        category = guild.get_category(target_category_id) if target_category_id else None
+        category = guild.get_channel(target_category_id) if target_category_id else None
 
         channel_name = f"ticket-{ticket_type}-{member.name.lower()}"
         existing_channel = discord.utils.get(guild.text_channels, name=channel_name)
