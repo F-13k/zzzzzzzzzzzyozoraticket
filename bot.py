@@ -36,7 +36,7 @@ class CloseTicketView(View):
         await interaction.response.send_message("Fermeture du ticket dans 3 secondes...", ephemeral=True)
         await interaction.channel.delete()
 
-# Menu déroulant des tickets avec tes ID de catégories intégrés
+# Menu déroulant des tickets
 class TicketSelect(Select):
     def __init__(self):
         options = [
@@ -54,7 +54,6 @@ class TicketSelect(Select):
         member = interaction.user
         ticket_type = self.values[0]
 
-        # Association des types avec tes ID de catégories
         category_ids = {
             "support": 1529687940312072385,
             "fondateurs": 1529688368747909313,
