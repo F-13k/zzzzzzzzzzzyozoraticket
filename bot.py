@@ -59,12 +59,12 @@ class TicketSelect(Select):
         # ----------------------------------------------------
         # Remplace ces zéros par les ID de tes catégories Discord correspondantes :
         category_ids = {
-            "support": 0000000000000000000,
-            "fondateurs": 0000000000000000000,  # ID catégorie pour les fondateurs
-            "abus": 0000000000000000000,        # ID catégorie pour les signalements d'abus
-            "partenariat": 0000000000000000000,
-            "plainte": 0000000000000000000,
-            "autre": 0000000000000000000
+            "support": 1529687940312072385,
+            "fondateurs": 1529688368747909313,  # ID catégorie pour les fondateurs
+            "abus": 1529688444102643733,        # ID catégorie pour les signalements d'abus
+            "partenariat": 1529688545172914176,
+            "plainte": 1529688646192595114,
+            "autre": 1529688715339894844
         }
 
         target_category_id = category_ids.get(ticket_type)
