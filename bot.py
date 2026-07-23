@@ -36,13 +36,15 @@ class CloseTicketView(View):
         await interaction.response.send_message("Fermeture du ticket dans 3 secondes...", ephemeral=True)
         await interaction.channel.delete()
 
-# Menu déroulant pour choisir la catégorie du ticket
+# Menu déroulant mis à jour avec les nouvelles options
 class TicketSelect(Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="Support / Aide", description="Une question ou besoin d'aide sur le serveur", emoji="🎫", value="support"),
+            discord.SelectOption(label="Contacter les Fondateurs", description="Pour une affaire importante réservée aux fondateurs", emoji="👑", value="fondateurs"),
+            discord.SelectOption(label="Signaler un abus", description="Signaler un abus de pouvoir ou un comportement grave", emoji="🛑", value="abus"),
             discord.SelectOption(label="Partenariat", description="Proposer ou demander un partenariat", emoji="🤝", value="partenariat"),
-            discord.SelectOption(label="Signalement / Plainte", description="Signaler un membre ou un problème grave", emoji="⚠️", value="plainte"),
+            discord.SelectOption(label="Signalement / Plainte", description="Signaler un membre ou un problème", emoji="⚠️", value="plainte"),
             discord.SelectOption(label="Autre", description="Pour toute autre demande", emoji="📌", value="autre")
         ]
         super().__init__(placeholder="Choisis le sujet de ton ticket...", min_values=1, max_values=1, options=options, custom_id="ticket_select_menu")
@@ -55,43 +57,42 @@ class TicketSelect(Select):
         # ----------------------------------------------------
         # CONFIGURATION DES CATEGORIES (ID DES CATEGORIES DISCORD)
         # ----------------------------------------------------
-        # Remplace ces chiffres par les ID de tes catégories sur Discord où les salons doivent se créer :
+        # Remplace ces zéros par les ID de tes catégories Discord correspondantes :
         category_ids = {
-            "support": 0000000000000000000,      # ID de la catégorie "Support"
-            "partenariat": 0000000000000000000,  # ID de la catégorie "Partenariats"
-            "plainte": 0000000000000000000,      # ID de la catégorie "Modération / Plaintes"
-            "autre": 0000000000000000000         # ID de la catégorie par défaut
+            "support": 0000000000000000000,
+            "fondateurs": 0000000000000000000,  # ID catégorie pour les fondateurs
+            "abus": 0000000000000000000,        # ID catégorie pour les signalements d'abus
+            "partenariat": 0000000000000000000,
+            "plainte": 0000000000000000000,
+            "autre": 0000000000000000000
         }
 
         target_category_id = category_ids.get(ticket_type)
         category = guild.get_category(target_category_id) if target_category_id else None
 
-        # Vérifie si un ticket de ce type existe déjà pour ce membre
         channel_name = f"ticket-{ticket_type}-{member.name.lower()}"
         existing_channel = discord.utils.get(guild.text_channels, name=channel_name)
         if existing_channel:
             await interaction.response.send_message(f"Tu as déjà un ticket ouvert de ce type : {existing_channel.mention}", ephemeral=True)
             return
 
-        # Permissions du salon privé
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(read_messages=False),
             member: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
         }
 
-        # Création du salon dans la bonne catégorie
         ticket_channel = await guild.create_text_channel(
             name=channel_name,
-            category=category, # Range le salon dans la bonne catégorie Discord
+            category=category,
             overwrites=overwrites,
             topic=f"Ticket {ticket_type.upper()} de {member.name}"
         )
 
         embed = discord.Embed(
             title=f"🎫 Ticket : {ticket_type.capitalize()} - {member.name}",
-            description=f"Bonjour {member.mention} !\nExplique ta demande concernant le sujet **{ticket_type.upper()}**. Un membre de l'équipe de **Yozora** va te répondre.\n\nClique sur le bouton ci-dessous pour fermer le ticket une fois résolu.",
-            color=discord.Color.purple()
+            description=f"Bonjour {member.mention} !\nExplique ta demande concernant le sujet **{ticket_type.upper()}**. L'équipe concernée va te répondre.\n\nClique sur le bouton ci-dessous pour fermer le ticket une fois résolu.",
+            color=discord.Color.pink()
         )
         
         await ticket_channel.send(content=f"{member.mention}", embed=embed, view=CloseTicketView())
@@ -113,7 +114,7 @@ async def on_ready():
 async def createticket(ctx):
     embed = discord.Embed(
         title="🎫 Centre de Support - Yozora 🌸",
-        description="Besoin d'aide, d'un partenariat ou de contacter la modération ?\nSélectionne la catégorie correspondante dans le menu déroulant ci-dessous pour ouvrir un salon privé.",
+        description="Besoin d'aide, de contacter les fondateurs, de signaler un abus ou un partenariat ?\nSélectionne la catégorie correspondante dans le menu déroulant ci-dessous pour ouvrir un salon privé.",
         color=discord.Color.pink()
     )
     view = TicketView()
